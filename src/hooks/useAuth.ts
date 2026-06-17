@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User } from '../types';
 
-const API_URL = 'http://localhost:3001/api/auth';
+const API_URL = '/api/auth';
 
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
