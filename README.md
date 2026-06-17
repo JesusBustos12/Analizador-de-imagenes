@@ -1,6 +1,6 @@
 # SATI - Sistema Avanzado Táctico de Inteligencia
 
-SATI es una aplicación corporativa Full-Stack diseñada para analizar evidencia digital (imágenes) en búsqueda de amenazas para la seguridad pública, utilizando el modelo `gpt-4o-mini` de OpenAI y tecnologías de vanguardia para asegurar el rendimiento y la invulnerabilidad de la plataforma.
+SATI es una aplicación corporativa Full-Stack diseñada para analizar evidencia digital (imágenes) en búsqueda de amenazas para la seguridad pública, utilizando el modelo `gpt-5-mini` de OpenAI y tecnologías de vanguardia para asegurar el rendimiento y la invulnerabilidad de la plataforma.
 
 ## 🚀 Tecnologías Destacadas
 
