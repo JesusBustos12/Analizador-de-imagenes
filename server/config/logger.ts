@@ -14,28 +14,32 @@ const consoleFormat = combine(
   })
 );
 
-// Rotador de archivos diarios para evitar logs gigantescos en producción
-const fileRotateTransport = new winston.transports.DailyRotateFile({
-  filename: 'logs/sati-backend-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
-  maxFiles: '14d', // Mantiene logs de los últimos 14 días
-  maxSize: '20m',  // Rota el archivo si pasa los 20MB
-});
+const transportsList: winston.transport[] = [];
+
+// En Vercel (o en Serverless en general), el sistema de archivos es de solo lectura.
+// Por lo tanto, no podemos escribir en la carpeta 'logs/'. Solo usamos Console en Vercel.
+if (!process.env.VERCEL) {
+  const fileRotateTransport = new winston.transports.DailyRotateFile({
+    filename: 'logs/sati-backend-%DATE%.log',
+    datePattern: 'YYYY-MM-DD',
+    maxFiles: '14d',
+    maxSize: '20m',
+  });
+  transportsList.push(fileRotateTransport);
+}
 
 export const logger = winston.createLogger({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: combine(
     timestamp(),
     errors({ stack: true }),
-    json() // Formato JSON en archivos para fácil parseo forense
+    json()
   ),
-  transports: [
-    fileRotateTransport,
-  ],
+  transports: transportsList.length > 0 ? transportsList : [new winston.transports.Console({ format: consoleFormat })],
 });
 
-// En desarrollo, también imprime en la consola con colores legibles
-if (env.NODE_ENV !== 'production') {
+// En desarrollo, también imprime en la consola con colores legibles (si no fue agregado ya)
+if (env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   logger.add(
     new winston.transports.Console({
       format: consoleFormat,
