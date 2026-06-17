@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  sati-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET:-sati-secure-backend-jwt-super-secret-key-2026}
+      - FRONTEND_URL=http://localhost:3001
+    restart: always

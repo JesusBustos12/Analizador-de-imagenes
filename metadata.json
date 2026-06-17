@@ -1,0 +1,5 @@
+{
+  "name": "Sistema de Análisis Táctico",
+  "description": "Plataforma gubernamental para el análisis de imágenes y detección de amenazas a la seguridad pública.",
+  "requestFramePermissions": []
+}
