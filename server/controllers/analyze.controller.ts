@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { analyzeImageWithOpenAI } from '../services/openai.service';
-import { logger } from '../config/logger';
-import db from '../db';
+import { analyzeImageWithOpenAI } from '../services/openai.service.js';
+import { logger } from '../config/logger.js';
+import db from '../db.js';
 
 export const analyzeImage = async (req: Request, res: Response, next: NextFunction) => {
   const userId = (req as any).user?.id || 'anonymous';

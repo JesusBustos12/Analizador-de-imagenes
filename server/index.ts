@@ -5,13 +5,13 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import path from 'path';
 
-import { env } from './config/env';
-import authRoutes from './routes/auth.routes';
-import analyzeRoutes from './routes/analyze.routes';
-import { errorHandler } from './middlewares/errorHandler';
-import { initDb } from './db';
-import { setupSwagger } from './config/swagger';
-import { logger } from './config/logger';
+import { env } from './config/env.js';
+import authRoutes from './routes/auth.routes.js';
+import analyzeRoutes from './routes/analyze.routes.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { initDb } from './db.js';
+import { setupSwagger } from './config/swagger.js';
+import { logger } from './config/logger.js';
 
 const app = express();
 const port = env.PORT || 3001;

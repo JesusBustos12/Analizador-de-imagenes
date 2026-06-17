@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import { env } from './config/env';
+import { env } from './config/env.js';
 
 // Limpiamos ?ssl=true del URI ya que mysql2 falla si lo parsea como booleano en el string de conexión
 const cleanUri = env.DATABASE_URL.replace('?ssl=true', '');

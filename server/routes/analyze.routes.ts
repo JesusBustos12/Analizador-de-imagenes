@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { analyzeImage } from '../controllers/analyze.controller';
-import { authenticateToken } from '../middlewares/auth.middleware';
-import { validateRequest } from '../middlewares/validate.middleware';
-import { analyzeSchema } from '../schemas';
-import { analyzeRateLimiter } from '../middlewares/security.middleware';
+import { analyzeImage } from '../controllers/analyze.controller.js';
+import { authenticateToken } from '../middlewares/auth.middleware.js';
+import { validateRequest } from '../middlewares/validate.middleware.js';
+import { analyzeSchema } from '../schemas/index.js';
+import { analyzeRateLimiter } from '../middlewares/security.middleware.js';
 
 const router = Router();
 
