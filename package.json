@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
-    "@supabase/supabase-js": "^2.99.2",
     "@tailwindcss/vite": "^4.1.14",
     "bcrypt": "^6.0.0",
     "browser-image-compression": "^2.0.2",
