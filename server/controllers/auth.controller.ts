@@ -51,7 +51,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const { email, password } = req.body;
 
     const [users]: any = await db.execute(
-      'SELECT * FROM users WHERE email = ? LIMIT 1',
+      'SELECT *, IF(last_analysis_date = CURRENT_DATE(), 1, 0) as is_today FROM users WHERE email = ? LIMIT 1',
       [email]
     );
 
@@ -68,10 +68,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    let count = user.daily_analyses_count || 0;
-    const today = new Date().toISOString().split('T')[0];
-    const lastDate = user.last_analysis_date ? new Date(user.last_analysis_date).toISOString().split('T')[0] : null;
-    if (lastDate !== today) count = 0;
+    let count = user.is_today ? (user.daily_analyses_count || 0) : 0;
 
     const payload = { id: user.id, name: user.name, email: user.email, daily_analyses_count: count };
     const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
@@ -149,18 +146,13 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
   try {
     const userId = (req as any).user.id;
     const [rows]: any = await db.execute(
-      'SELECT daily_analyses_count, last_analysis_date FROM users WHERE id = ? LIMIT 1',
+      'SELECT daily_analyses_count, IF(last_analysis_date = CURRENT_DATE(), 1, 0) as is_today FROM users WHERE id = ? LIMIT 1',
       [userId]
     );
 
     if (rows.length > 0) {
-      let { daily_analyses_count, last_analysis_date } = rows[0];
-      const today = new Date().toISOString().split('T')[0];
-      const lastDate = last_analysis_date ? new Date(last_analysis_date).toISOString().split('T')[0] : null;
-      if (lastDate !== today) {
-        daily_analyses_count = 0;
-      }
-      return res.json({ success: true, user: { ...(req as any).user, daily_analyses_count } });
+      let count = rows[0].is_today ? (rows[0].daily_analyses_count || 0) : 0;
+      return res.json({ success: true, user: { ...(req as any).user, daily_analyses_count: count } });
     }
     
     res.json({ success: true, user: (req as any).user });
