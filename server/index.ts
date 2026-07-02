@@ -16,6 +16,9 @@ import { logger } from './config/logger.js';
 const app = express();
 const port = env.PORT || 3001;
 
+// Trust Vercel Proxy to avoid express-rate-limit errors
+app.set('trust proxy', 1);
+
 // --- SEGURIDAD Y MIDDLEWARES GLOBALES ---
 app.use(helmet({
   contentSecurityPolicy: false, // Opcional: desactivar CSP si da problemas con imágenes en línea, o configurarlo bien
