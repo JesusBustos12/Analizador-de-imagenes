@@ -13,7 +13,7 @@ export const Header = ({ user, onLogout, onEditProfile }: HeaderProps) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="bg-blue-600 p-2 rounded-lg">
-            <Shield className="w-6 h-6 text-white" />
+            <img src="/sombrero-de-policia.png" alt="Logo Policía" className="w-6 h-6 object-contain drop-shadow-md brightness-0 invert" />
           </div>
           <div>
             <h1 className="hidden sm:block text-lg font-bold tracking-wide uppercase">Sistema de Análisis Táctico</h1>
