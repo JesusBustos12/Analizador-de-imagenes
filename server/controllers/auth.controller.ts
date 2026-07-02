@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import db from '../db.js';
 import { logger } from '../config/logger.js';
+import { AuthRequest, UserRow } from '../types/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
 
@@ -14,11 +16,11 @@ const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
 
-    const [existingUsers]: any = await db.execute(
+    const [existingUsers] = await db.execute<UserRow[]>(
       'SELECT id FROM users WHERE email = ? LIMIT 1',
       [email]
     );
@@ -30,7 +32,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     const saltRounds = 10;
     const hash = await bcrypt.hash(password, saltRounds);
-    const id = Math.random().toString(36).substring(2, 11);
+    const id = crypto.randomUUID();
 
     await db.execute(
       'INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)',
@@ -46,11 +48,11 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
-    const [users]: any = await db.execute(
+    const [users] = await db.execute<UserRow[]>(
       'SELECT *, IF(last_analysis_date = CURRENT_DATE(), 1, 0) as is_today FROM users WHERE email = ? LIMIT 1',
       [email]
     );
@@ -82,12 +84,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+
     const { name, email, password } = req.body;
     
-    const [currentUsers]: any = await db.execute(
+    const [currentUsers] = await db.execute<UserRow[]>(
       'SELECT email FROM users WHERE id = ? LIMIT 1',
       [userId]
     );
@@ -100,7 +104,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     const currentUser = currentUsers[0];
 
     if (email && email !== currentUser.email) {
-      const [existingUsers]: any = await db.execute(
+      const [existingUsers] = await db.execute<UserRow[]>(
         'SELECT id FROM users WHERE email = ? LIMIT 1',
         [email]
       );
@@ -136,26 +140,28 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const logout = (req: Request, res: Response, next: NextFunction) => {
+export const logout = (req: AuthRequest, res: Response, next: NextFunction) => {
   res.clearCookie('token');
   logger.info(`Sesión cerrada (Logout)`);
   res.json({ success: true });
 };
 
-export const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const checkAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id;
-    const [rows]: any = await db.execute(
+    const userId = req.user?.id;
+    if (!userId) return res.json({ success: true, user: req.user });
+
+    const [rows] = await db.execute<UserRow[]>(
       'SELECT daily_analyses_count, IF(last_analysis_date = CURRENT_DATE(), 1, 0) as is_today FROM users WHERE id = ? LIMIT 1',
       [userId]
     );
 
     if (rows.length > 0) {
       let count = rows[0].is_today ? (rows[0].daily_analyses_count || 0) : 0;
-      return res.json({ success: true, user: { ...(req as any).user, daily_analyses_count: count } });
+      return res.json({ success: true, user: { ...req.user, daily_analyses_count: count } });
     }
     
-    res.json({ success: true, user: (req as any).user });
+    res.json({ success: true, user: req.user });
   } catch (err) {
     next(err);
   }
