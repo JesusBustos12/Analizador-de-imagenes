@@ -63,9 +63,7 @@ export const Login = ({ onLogin, onSwitchToRegister }: LoginProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-center"
         >
-          <div className="bg-blue-600 p-3 rounded-2xl shadow-lg ring-4 ring-blue-600/30">
-            <Shield className="w-12 h-12 text-white" />
-          </div>
+          <img src="/sombrero-de-policia.png" alt="SATI Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
         </motion.div>
         
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">

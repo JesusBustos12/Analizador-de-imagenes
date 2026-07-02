@@ -71,13 +71,13 @@ export const Register = ({ onRegister, onSwitchToLogin }: RegisterProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-center"
         >
-          <div className="bg-slate-700 p-3 rounded-2xl shadow-lg border-2 border-slate-600">
-            {isSuccess ? (
+          {isSuccess ? (
+            <div className="bg-slate-700 p-3 rounded-2xl shadow-lg border-2 border-slate-600">
               <CheckCircle className="w-12 h-12 text-emerald-400" />
-            ) : (
-              <BadgeInfo className="w-12 h-12 text-slate-300" />
-            )}
-          </div>
+            </div>
+          ) : (
+            <img src="/sombrero-de-policia.png" alt="SATI Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
+          )}
         </motion.div>
         
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">

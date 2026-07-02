@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -23,7 +23,15 @@ function PublicRoute({ children, isAuthenticated }: { children: React.ReactNode,
 export default function App() {
   const { currentUser, isInitializing, login, register, updateProfile, logout, refreshUser } = useAuth();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [minSplashTimeDone, setMinSplashTimeDone] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinSplashTimeDone(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const {
     selectedImage,
@@ -40,15 +48,45 @@ export default function App() {
     analyzeImage
   } = useImageAnalyzer({ onSuccess: refreshUser });
 
-  if (isInitializing) {
+  const isAuthenticated = !!currentUser;
+  const showSplash = isInitializing || (isAuthenticated && !minSplashTimeDone);
+
+  if (showSplash) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden font-sans">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-60"
+          style={{
+            backgroundImage: 'linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.98)), url("/security-bg.png")',
+          }}
+        />
+        <div 
+          className="absolute inset-0 z-0 mix-blend-overlay pointer-events-none" 
+          style={{ 
+            backgroundImage: 'radial-gradient(circle at center, transparent 0%, #020617 100%), linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px)', 
+            backgroundSize: '100% 100%, 40px 40px, 40px 40px' 
+          }} 
+        />
+        
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="animate-pulse flex flex-col items-center">
+            <img src="/sombrero-de-policia.png" alt="SATI Logo" className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.5)] mb-6" />
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-widest uppercase drop-shadow-lg text-center">
+              SATI
+            </h1>
+            <h2 className="text-lg sm:text-xl font-bold text-blue-400 tracking-wider uppercase mt-3 drop-shadow-md text-center max-w-md px-4">
+              Sistema Avanzado Táctico de Inteligencia
+            </h2>
+          </div>
+          
+          <div className="mt-12 flex items-center space-x-3 text-slate-400">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+            <span className="uppercase text-sm tracking-widest font-semibold">Estableciendo conexión segura...</span>
+          </div>
+        </div>
       </div>
     );
   }
-
-  const isAuthenticated = !!currentUser;
 
   const handleLogin = async (e: string, p?: string) => {
     const res = await login(e, p);
