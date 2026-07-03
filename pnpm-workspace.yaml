@@ -1,5 +1,0 @@
-allowBuilds:
-  '@scarf/scarf': true
-  bcrypt: true
-  core-js: true
-  esbuild: true
