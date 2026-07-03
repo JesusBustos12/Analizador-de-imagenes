@@ -43,26 +43,26 @@ export const AnalysisReport = React.memo(({ selectedImage, isAnalyzing, result }
         }
       });
       
+      // Calcular la altura dinámica basada en el contenido
+      const tempPdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const imgProps = tempPdf.getImageProperties(imgData);
+      const pdfWidth = tempPdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      // Asegurar que la página sea al menos A4 (297mm), o más alta si el contenido lo requiere
+      const pageHeight = Math.max(297, pdfHeight + 30);
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: [pdfWidth, pageHeight]
       });
-      
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
       pdf.addImage(imgData, 'PNG', 0, 15, pdfWidth, pdfHeight);
 
       // --- Security Overlay & Forensic Watermarks ---
-      
-      // 1. Diagonal Watermark
-      pdf.setTextColor(200, 200, 200);
-      pdf.setFontSize(60);
-      pdf.text('CONFIDENCIAL', pdfWidth / 2, pdfHeight / 2 + 15, { angle: 45, align: 'center', opacity: 0.1 } as any);
 
-      // 2. Top Classification Banner
+      // 1. Top Classification Banner
       pdf.setFillColor(220, 38, 38); // Red background
       pdf.rect(0, 0, pdfWidth, 10, 'F');
       pdf.setTextColor(255, 255, 255);
@@ -70,16 +70,16 @@ export const AnalysisReport = React.memo(({ selectedImage, isAnalyzing, result }
       pdf.setFont('helvetica', 'bold');
       pdf.text('DOCUMENTO CLASIFICADO - USO EXCLUSIVO SATI', pdfWidth / 2, 6, { align: 'center' });
 
-      // 3. Footer Metadata & Tracking Hash
+      // 2. Footer Metadata & Tracking Hash
       const timestamp = new Date().toISOString();
       const trackingHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
       pdf.setTextColor(100, 100, 100);
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Fecha de Emisión: ${timestamp}`, 10, 285);
-      pdf.text(`Firma Digital (Hash): ${trackingHash}`, 10, 290);
-      pdf.text(`Página 1 de 1`, pdfWidth - 30, 290);
+      pdf.text(`Fecha de Emisión: ${timestamp}`, 10, pageHeight - 12);
+      pdf.text(`Firma Digital (Hash): ${trackingHash}`, 10, pageHeight - 7);
+      pdf.text(`Página 1 de 1`, pdfWidth - 30, pageHeight - 7);
 
       pdf.save(`Reporte_Forense_${new Date().getTime()}.pdf`);
     } catch (error) {
